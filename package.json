@@ -19,7 +19,8 @@
     "commander": "^14.0.3",
     "dotenv": "^17.4.2",
     "groq-sdk": "^1.1.2",
-    "ignore": "^7.0.5"
+    "ignore": "^7.0.5",
+    "ollama": "^0.6.3"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

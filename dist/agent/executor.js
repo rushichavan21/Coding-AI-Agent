@@ -32,7 +32,6 @@ class ToolExecutor {
                     return `Error: Tool ${name} not found`;
             }
             const strResult = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-            // Truncate to avoid context limit issues if too large
             return strResult.length > 5000 ? strResult.substring(0, 5000) + '... [TRUNCATED]' : strResult;
         }
         catch (error) {

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgentController = void 0;
 const groqClient_1 = require("../llm/groqClient");
+const ollamaClient_1 = require("../llm/ollamaClient");
 const executor_1 = require("./executor");
 const logger_1 = require("../utils/logger");
 class AgentController {
@@ -10,7 +11,14 @@ class AgentController {
     messages;
     maxLoops = 10;
     constructor() {
-        this.client = new groqClient_1.GroqClient();
+        if (process.env.USE_LOCAL_LLM === 'true' || process.env.USE_LOCAL_LLM === 'yes') {
+            logger_1.logger.info('Initializing Agent with local Ollama provider...');
+            this.client = new ollamaClient_1.OllamaClient();
+        }
+        else {
+            logger_1.logger.info('Initializing Agent with Groq provider...');
+            this.client = new groqClient_1.GroqClient();
+        }
         this.executor = new executor_1.ToolExecutor();
         this.messages = [];
     }
@@ -29,17 +37,23 @@ class AgentController {
             if (response.tool_calls && response.tool_calls.length > 0) {
                 for (const toolCall of response.tool_calls) {
                     const functionName = toolCall.function.name;
-                    const args = JSON.parse(toolCall.function.arguments);
+                    // Ollama sdk uses args directly as an object, whereas Groq uses a JSON string
+                    let args;
+                    if (typeof toolCall.function.arguments === 'string') {
+                        args = JSON.parse(toolCall.function.arguments);
+                    }
+                    else {
+                        args = toolCall.function.arguments;
+                    }
                     const result = await this.executor.execute(functionName, args);
                     this.messages.push({
                         role: 'tool',
-                        tool_call_id: toolCall.id,
+                        name: functionName, // required by some LLMs
                         content: result
                     });
                 }
             }
             else {
-                // No tool calls, agent has finished answering
                 logger_1.logger.success('Task completed.');
                 break;
             }

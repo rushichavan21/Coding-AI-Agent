@@ -4,12 +4,18 @@
   "description": "",
   "main": "dist/cli/index.js",
   "bin": {
-    "ai-agent": "./dist/cli/index.js"
+    "dev-agent": "./dist/cli/index.js"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli/index.js",
-    "dev": "ts-node src/cli/index.ts"
+    "dev": "ts-node src/cli/index.ts",
+    "chat": "node dist/cli/index.js chat",
+    "ask": "node dist/cli/index.js ask",
+    "debug": "node dist/cli/index.js debug",
+    "refactor": "node dist/cli/index.js refactor",
+    "test-gen": "node dist/cli/index.js test",
+    "fix-build": "node dist/cli/index.js fix-build"
   },
   "keywords": [],
   "author": "",

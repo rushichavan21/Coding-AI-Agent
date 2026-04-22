@@ -38,16 +38,17 @@ const dotenv = __importStar(require("dotenv"));
 const logger_1 = require("../utils/logger");
 const controller_1 = require("../agent/controller");
 const readline = __importStar(require("readline"));
-// Load environment variables from .env
 dotenv.config();
 const program = new commander_1.Command();
 program
-    .name('ai-agent')
+    .name('dev-agent')
     .description('Developer CLI Agentic AI for understanding and modifying codebases')
-    .version('1.0.0');
+    .version('1.0.0')
+    .allowUnknownOption(true);
 program
     .command('ask <question>')
     .description('Ask a question about the codebase')
+    .allowUnknownOption(true)
     .action(async (question) => {
     try {
         const controller = new controller_1.AgentController();
@@ -61,6 +62,7 @@ program
 program
     .command('debug <error_message>')
     .description('Debug an error or stack trace')
+    .allowUnknownOption(true)
     .action(async (errorMessage) => {
     try {
         const controller = new controller_1.AgentController();
@@ -74,6 +76,7 @@ program
 program
     .command('refactor <instruction>')
     .description('Refactor code based on an instruction')
+    .allowUnknownOption(true)
     .action(async (instruction) => {
     try {
         const controller = new controller_1.AgentController();
@@ -87,6 +90,7 @@ program
 program
     .command('test <target>')
     .description('Generate unit tests for a specific file or module')
+    .allowUnknownOption(true)
     .action(async (target) => {
     try {
         const controller = new controller_1.AgentController();
@@ -100,6 +104,7 @@ program
 program
     .command('fix-build')
     .description('Run an agent loop to continuously attempt to fix build errors')
+    .allowUnknownOption(true)
     .action(async () => {
     try {
         const controller = new controller_1.AgentController();
@@ -113,12 +118,24 @@ program
 program
     .command('chat')
     .description('Start an interactive chat session with the agent')
+    .allowUnknownOption(true)
     .action(async () => {
     console.log('Starting interactive chat session. Type "exit" or "quit" to stop.\n');
-    const controller = new controller_1.AgentController();
+    let controller;
+    try {
+        controller = new controller_1.AgentController();
+    }
+    catch (err) {
+        logger_1.logger.error('Failed to initialize agent', err);
+        process.exit(1);
+    }
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
+    });
+    rl.on('close', () => {
+        console.log('\nSession ended.');
+        process.exit(0);
     });
     const askQuestion = () => {
         rl.question('\x1b[32mYou:\x1b[0m ', async (input) => {
@@ -136,7 +153,7 @@ program
                     logger_1.logger.error('Failed to execute task', err);
                 }
             }
-            console.log(''); // Empty line for readability
+            console.log('');
             askQuestion();
         });
     };

@@ -55,7 +55,6 @@ async function search_code(dir, query) {
             }
         }
         catch (error) {
-            // Ignore files that cannot be read (e.g. binaries)
         }
     }
     return results;

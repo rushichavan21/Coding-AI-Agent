@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SYSTEM_PROMPT = exports.DEFAULT_MODEL = void 0;
-exports.DEFAULT_MODEL = 'openai/gpt-oss-120b';
+exports.SYSTEM_PROMPT = exports.OLLAMA_DEFAULT_MODEL = exports.DEFAULT_MODEL = void 0;
+exports.DEFAULT_MODEL = 'mixtral-8x7b-32768';
+exports.OLLAMA_DEFAULT_MODEL = 'llama3.2:latest';
 exports.SYSTEM_PROMPT = `
 You are a Developer CLI Agentic AI, a highly capable assistant running directly on the user's local machine.
 You have access to the user's codebase and a set of tools that allow you to read files, write files, search code, list directories, and execute shell commands.

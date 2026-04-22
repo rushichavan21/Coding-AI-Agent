@@ -6,14 +6,20 @@ export class GroqClient {
   private model: string;
 
   constructor() {
+    // Pull the API key from environment variables — will throw early if missing
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       throw new Error('GROQ_API_KEY environment variable is not set');
     }
+
     this.groq = new Groq({ apiKey });
+
+    // Allow overriding the model via env, but fall back to our default tool-use model
     this.model = process.env.GROQ_MODEL || DEFAULT_MODEL;
   }
 
+  // Defines all the tools the LLM is allowed to call.
+  // Groq expects this in the OpenAI function-calling format.
   getTools(): Array<Groq.Chat.Completions.ChatCompletionTool> {
     return [
       {
@@ -91,15 +97,18 @@ export class GroqClient {
     ];
   }
 
+  // Sends the current conversation history to Groq and gets back the model's response.
+  // The system prompt is always prepended so the LLM knows its role and rules.
   async getCompletion(messages: Groq.Chat.Completions.ChatCompletionMessageParam[]) {
     const response = await this.groq.chat.completions.create({
       model: this.model,
       messages: [
+        // Inject the system prompt + current working directory so the agent knows where it is
         { role: 'system', content: SYSTEM_PROMPT + `\n\nCurrent working directory: ${process.cwd()}` },
         ...messages
       ],
       tools: this.getTools(),
-      tool_choice: 'auto'
+      tool_choice: 'auto' // let the model decide when to use tools
     });
 
     return response.choices[0].message;

@@ -4,8 +4,10 @@ import { logger } from '../utils/logger';
 import { AgentController } from '../agent/controller';
 import * as readline from 'readline';
 
+// Load .env file so GROQ_API_KEY and other env vars are available
 dotenv.config();
 
+// Set up the CLI program with a name, description and version
 const program = new Command();
 
 program
@@ -15,6 +17,8 @@ program
   .allowUnknownOption(true);
 
 
+// --- ask command ---
+// One-shot: ask a question about the codebase and get an answer
 program
   .command('ask <question>')
   .description('Ask a question about the codebase')
@@ -29,6 +33,9 @@ program
     }
   });
 
+
+// --- debug command ---
+// Paste in an error message or stack trace and the agent will analyze and suggest a fix
 program
   .command('debug <error_message>')
   .description('Debug an error or stack trace')
@@ -43,6 +50,9 @@ program
     }
   });
 
+
+// --- refactor command ---
+// Give a natural language instruction and the agent will refactor the relevant code
 program
   .command('refactor <instruction>')
   .description('Refactor code based on an instruction')
@@ -57,6 +67,9 @@ program
     }
   });
 
+
+// --- test command ---
+// Point it at a file or module and it will generate unit tests for it
 program
   .command('test <target>')
   .description('Generate unit tests for a specific file or module')
@@ -71,6 +84,9 @@ program
     }
   });
 
+
+// --- fix-build command ---
+// Runs the build, reads the errors, fixes the code, and repeats until it passes
 program
   .command('fix-build')
   .description('Run an agent loop to continuously attempt to fix build errors')
@@ -85,6 +101,9 @@ program
     }
   });
 
+
+// --- chat command ---
+// Interactive back-and-forth session — the agent remembers the full conversation history
 program
   .command('chat')
   .description('Start an interactive chat session with the agent')
@@ -92,6 +111,7 @@ program
   .action(async () => {
     console.log('Starting interactive chat session. Type "exit" or "quit" to stop.\n');
 
+    // Create a single controller instance so the agent keeps context across messages
     let controller: AgentController;
     try {
       controller = new AgentController();
@@ -100,26 +120,31 @@ program
       process.exit(1);
     }
 
+    // Set up stdin/stdout for reading user input line by line
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     });
 
-
+    // Handle Ctrl+C or piped input ending gracefully
     rl.on('close', () => {
       console.log('\nSession ended.');
       process.exit(0);
     });
 
+    // Recursively prompt the user for input after each agent response
     const askQuestion = () => {
       rl.question('\x1b[32mYou:\x1b[0m ', async (input) => {
         const trimmed = input.trim();
+
+        // Let the user exit cleanly by typing exit or quit
         if (trimmed.toLowerCase() === 'exit' || trimmed.toLowerCase() === 'quit') {
           console.log('Exiting chat...');
           rl.close();
           process.exit(0);
         }
 
+        // Skip empty input — just re-prompt
         if (trimmed) {
           try {
             await controller!.runTask(trimmed);
@@ -129,6 +154,7 @@ program
         }
 
         console.log('');
+        // Loop back and wait for the next user message
         askQuestion();
       });
     };
@@ -136,4 +162,6 @@ program
     askQuestion();
   });
 
+
+// Hand off to commander to parse the CLI arguments and trigger the right command
 program.parse(process.argv);

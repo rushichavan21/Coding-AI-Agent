@@ -1,6 +1,10 @@
-export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
-export const OLLAMA_DEFAULT_MODEL = 'llama3.2:latest';
+// The Groq model we're using for all LLM calls.
+// This model is specifically fine-tuned for tool/function calling — don't change this.
 
+export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
+
+// This is the main system prompt sent to the LLM at the start of every conversation.
+// It sets the personality, capabilities, and rules the agent must follow.
 export const SYSTEM_PROMPT = `
 You are a Developer CLI Agentic AI, a highly capable assistant running directly on the user's local machine.
 You have access to the user's codebase and a set of tools that allow you to read files, write files, search code, list directories, and execute shell commands.

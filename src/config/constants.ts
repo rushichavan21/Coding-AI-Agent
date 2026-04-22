@@ -1,4 +1,4 @@
-export const DEFAULT_MODEL = 'mixtral-8x7b-32768';
+export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
 export const OLLAMA_DEFAULT_MODEL = 'llama3.2:latest';
 
 export const SYSTEM_PROMPT = `
